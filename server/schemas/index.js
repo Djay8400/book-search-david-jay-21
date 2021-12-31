@@ -1,0 +1,8 @@
+///////////////////////////////// FROM README ////////////////////////////////////
+// Export your typeDefs and resolvers.
+///////////////////////////////// FROM README ////////////////////////////////////
+
+const typeDefs = require("./typeDefs");
+const resolvers = require("./resolvers");
+
+module.exports = { typeDefs, resolvers };
