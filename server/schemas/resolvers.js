@@ -11,20 +11,23 @@ const resolvers = {
     users: async () => {
       return await User.find({}).populate("books");
     },
-    books: async () => {
-      return await Book.find({});
-    },
   },
   Mutations: {
-    login: async (parent, { email, password }) => {},
     addUser: async (parent, { username, email, password }) => {
       return await User.create({ username, email, password });
+    },
+    login: async (parent, { email, password }) => {
+      // return await;
     },
     saveBook: async (
       parent,
       { author, description, title, bookId, image, link }
-    ) => {},
-    removeBook: async (parent, {}) => {},
+    ) => {
+      // return await;
+    },
+    removeBook: async (parent, { bookId }) => {
+      // return await;
+    },
   },
 };
 
