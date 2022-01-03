@@ -13,6 +13,7 @@ import Auth from "../utils/auth";
 //////////////// APOLLO /////////////////////////////////
 import { useMutation } from "@apollo/client";
 import { LOGIN_USER } from "../utils/mutations";
+import { GET_ME } from "../utils/queries";
 //////////////// APOLLO /////////////////////////////////
 
 const LoginForm = () => {
@@ -27,7 +28,25 @@ const LoginForm = () => {
 
   ////////////// APOLLO //////////////////////////////////
   // Set up our mutation with an option to handle errors
-  const [loginUser, { error }] = useMutation(LOGIN_USER);
+  const [loginUser, { error }] = useMutation(LOGIN_USER, {
+    // The update method allows us to access and update the local cache
+    update(cache, { data: { loginUser } }) {
+      try {
+        // First we retrieve existing profile data that is stored in the cache under the `QUERY_PROFILES` query
+        // Could potentially not exist yet, so wrap in a try/catch
+        const { me } = cache.readQuery({ query: GET_ME });
+
+        // Then we update the cache by combining existing profile data with the newly created data returned from the mutation
+        cache.writeQuery({
+          query: GET_ME,
+          // If we want new data to show up before or after existing data, adjust the order of this array
+          data: { me: [...me, loginUser] },
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    },
+  });
   ////////////// APOLLO //////////////////////////////////
 
   const handleFormSubmit = async (event) => {

@@ -23,6 +23,7 @@ import { searchGoogleBooks } from "../utils/API";
 import { saveBookIds, getSavedBookIds } from "../utils/localStorage";
 import { useMutation } from "@apollo/client";
 import { SAVE_BOOK } from "../utils/mutations";
+import { GET_ME } from "../utils/queries";
 
 const SearchBooks = () => {
   // create state for holding returned google api data
@@ -83,7 +84,25 @@ const SearchBooks = () => {
   });
 
   // Set up our mutation with an option to handle errors
-  const [saveBook, { error }] = useMutation(SAVE_BOOK);
+  const [saveBook, { error }] = useMutation(SAVE_BOOK, {
+    // The update method allows us to access and update the local cache
+    update(cache, { data: { saveBook } }) {
+      try {
+        // First we retrieve existing profile data that is stored in the cache under the `QUERY_PROFILES` query
+        // Could potentially not exist yet, so wrap in a try/catch
+        const { me } = cache.readQuery({ query: GET_ME });
+
+        // Then we update the cache by combining existing profile data with the newly created data returned from the mutation
+        cache.writeQuery({
+          query: GET_ME,
+          // If we want new data to show up before or after existing data, adjust the order of this array
+          data: { me: [...me, saveBook] },
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    },
+  });
   ////////////// APOLLO //////////////////////////////////
 
   // create function to handle saving a book to our database
